@@ -29,7 +29,7 @@ const navItems = [
 function Navigation({ parentToChild, modeChange }: any) {
   const { mode } = parentToChild;
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
-  const [scrolled, setScrolled] = useState<boolean>(false);
+  const [scrolled] = useState<boolean>(false);
   const [currentSection, setCurrentSection] = useState<string>(""); // New state to track section
 
   const handleDrawerToggle = () => {
