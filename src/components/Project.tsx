@@ -35,7 +35,8 @@ function Project() {
           <a href="about-section" target="_blank" rel="noreferrer">
             <img src={nextstep} className="zoom" alt="thumbnail" width="100%" />
           </a>
-          <a href="about-section" target="_blank" rel="noreferrer">
+          <a href="about-section
+          " target="_blank" rel="noreferrer">
             <h2>NextStep</h2>
           </a>
           <p>
