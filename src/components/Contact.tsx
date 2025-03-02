@@ -1,151 +1,76 @@
-import React, { useRef, useState } from 'react';
-import '../assets/styles/Contact.scss';
-import emailjs from '@emailjs/browser';
-import { Box, Button, TextField, Typography } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import React from "react";
+import emailjs from "@emailjs/browser";
+import "../assets/styles/Contact.scss";
+
+const SERVICE_ID = "service_7zujy3f"; // Replace with actual Service
+const TEMPLATE_ID = "template_3f95c9u"; // Replace with actual Template ID
+const PUBLIC_KEY = "z0HKQLy45kVBchak3"; // Replace with actual Public Key
 
 const Contact: React.FC = () => {
-  const form = useRef<HTMLFormElement | null>(null);
-  const [formData, setFormData] = useState(() => ({
-  user_name: '',
-  user_email: '',
-  message: '',
-}));
-
-  const [errors, setErrors] = useState({
-    user_name: false,
-    user_email: false,
-    message: false,
-  });
-
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    console.log(`Typing in ${name}:`, value); // LOG input updates
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: value.trim() === '' }));
-  };
-
-  const sendEmail = (e: React.FormEvent) => {
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let newErrors = {
-      user_name: formData.user_name.trim() === '',
-      user_email: formData.user_email.trim() === '',
-      message: formData.message.trim() === '',
-    };
+    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, e.currentTarget, PUBLIC_KEY).then(
+      (result: { text: string }) => {
+        console.log("SUCCESS:", result.text);
+        alert("Message Sent Successfully");
+      },
+      (error: { text: string }) => {
+        console.log("ERROR:", error.text);
+        alert("Something went wrong!");
+      }
+    );
 
-    setErrors(newErrors);
-
-    if (Object.values(newErrors).some((error) => error)) {
-      return;
-    }
-
-    if (form.current) {
-      emailjs
-        .sendForm(
-          'service_7zujy3f', // Replace with your Service ID
-          'template_3f95c9u', // Replace with your Template ID
-          form.current,
-          'z0HKQLy45kVBchak3' // Replace with your Public Key
-        )
-        .then((response) => {
-          console.log('SUCCESS!', response.status, response.text);
-          setSuccessMessage('Your message has been sent successfully!');
-          setFormData({ user_name: '', user_email: '', message: '' });
-        })
-        .catch((error) => {
-          console.log('FAILED...', error);
-          setSuccessMessage('Failed to send message, please try again later.');
-        });
-    }
+    e.currentTarget.reset();
   };
 
   return (
     <div id="contact">
-      <div className="items-container">
-        <div className="contact_wrapper">
-          <h1>Contact Me</h1>
-          <p>Have an idea in mind? Let’s bring it to life together!</p>
+      <div style={{ width: "100vw", height: "100vh", display: "flex" }}>
+        <form className="formContainer" onSubmit={handleOnSubmit}>
+          <h2>Send me a message. Let's have a chat!</h2>
 
-          <Box
-            ref={form}
-            component="form"
-            noValidate
-            autoComplete="off"
-            className="contact-form"
-            onSubmit={sendEmail}
-          >
-            <div className="form-flex">
-            <TextField
-  required
-  label="Your Name"
-  name="user_name"
-  value={formData.user_name}
-  onChange={handleChange}
-  error={errors.user_name}
-  helperText={errors.user_name ? 'Please enter your name' : ''}
-  fullWidth
-   variant="filled"
-  InputProps={{
-    style: { color: 'red', backgroundColor: 'yellow' }, // This WILL force visibility
-  }}
-/>
-
-              <TextField
-                required
-                label="Email"
-                placeholder="How can I reach you?"
-                name="user_email"
-                type="email"
-                value={formData.user_email}
-                onChange={handleChange}
-                error={errors.user_email}
-                helperText={errors.user_email ? 'Please enter your email' : ''}
-                fullWidth
-                  variant="filled"
-              />
-            </div>
-
-            <TextField
+          <div className="formElement">
+            <label htmlFor="from_name">Name</label>
+            <input
+              type="text"
+              id="from_name"
+              name="from_name"
+              placeholder="Your name.."
               required
-              label="Message"
-              placeholder="Send me any inquiries or questions"
-              name="message"
-              multiline
-              rows={10}
-              value={formData.message}
-              onChange={handleChange}
-              error={errors.message}
-              helperText={errors.message ? 'Please enter the message' : ''}
-              fullWidth
-                variant="filled"
             />
+          </div>
 
-            <Button
-              variant="contained"
-              endIcon={<SendIcon />}
-              type="submit"
-              sx={{ alignSelf: 'flex-end' }}
-            >
-              Send
-            </Button>
-          </Box>
+          <div className="formElement">
+            <label htmlFor="from_email">E-mail</label>
+            <input
+              type="email"
+              id="from_email"
+              name="from_email"
+              placeholder="Your email.."
+              required
+            />
+          </div>
 
-          {successMessage && (
-            <Typography variant="body1" color="success" sx={{ mt: 2 }}>
-              {successMessage}
-            </Typography>
-          )}
-        </div>
+          <div className="formElement">
+            <label htmlFor="message">Message</label>
+            <textarea
+              name="message"
+              id="message"
+              rows={8}
+              cols={30}
+              placeholder="Your message.."
+              required
+            />
+          </div>
+
+          <button type="submit" className="formButton">
+            Submit
+          </button>
+        </form>
       </div>
     </div>
   );
 };
 
 export default Contact;
-

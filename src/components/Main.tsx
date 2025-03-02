@@ -36,6 +36,16 @@ function Main() {
           </p>
           <p> </p>
 
+          <div className="button-container">
+            <a
+              href="https://drive.google.com/file/d/1-p47uPo17uhNrebpYNXeb0aepWm7GbUj/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <button className="resume-button">View Resume</button>
+            </a>
+          </div>
+
           <div className="mobile_social_icons">
             <a
               href="https://github.com/ManyaSahai"
