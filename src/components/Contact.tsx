@@ -1,55 +1,102 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import "../assets/styles/Contact.scss";
 
-const SERVICE_ID = "service_7zujy3f"; // Replace with actual Service
-const TEMPLATE_ID = "template_3f95c9u"; // Replace with actual Template ID
-const PUBLIC_KEY = "z0HKQLy45kVBchak3"; // Replace with actual Public Key
-
 const Contact: React.FC = () => {
-  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const form = useRef<HTMLFormElement | null>(null);
+  const [formData, setFormData] = useState({
+    user_name: "",
+    user_email: "",
+    message: "",
+  });
+
+  const [errors, setErrors] = useState({
+    user_name: false,
+    user_email: false,
+    message: false,
+  });
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: value.trim() === "" }));
+  };
+
+  const sendEmail = (e: React.FormEvent) => {
     e.preventDefault();
 
-    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, e.currentTarget, PUBLIC_KEY).then(
-      (result: { text: string }) => {
-        console.log("SUCCESS:", result.text);
-        alert("Message Sent Successfully");
-      },
-      (error: { text: string }) => {
-        console.log("ERROR:", error.text);
-        alert("Something went wrong!");
-      }
-    );
+    let newErrors = {
+      user_name: formData.user_name.trim() === "",
+      user_email: formData.user_email.trim() === "",
+      message: formData.message.trim() === "",
+    };
 
-    e.currentTarget.reset();
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some((error) => error)) {
+      return;
+    }
+
+    if (form.current) {
+      emailjs
+        .sendForm(
+          "service_7zujy3f", // Replace with your Service ID
+          "template_3f95c9u", // Replace with your Template ID
+          form.current,
+          "z0HKQLy45kVBchak3" // Replace with your Public Key
+        )
+        .then((response) => {
+          console.log("SUCCESS!", response.status, response.text);
+          setSuccessMessage("Your message has been sent successfully!");
+          setFormData({ user_name: "", user_email: "", message: "" });
+        })
+        .catch((error) => {
+          console.log("FAILED...", error);
+          setSuccessMessage("Failed to send message, please try again later.");
+        });
+    }
   };
 
   return (
     <div id="contact">
       <div style={{ width: "100vw", height: "100vh", display: "flex" }}>
-        <form className="formContainer" onSubmit={handleOnSubmit}>
+        <form ref={form} className="formContainer" onSubmit={sendEmail}>
           <h2>Send me a message. Let's have a chat!</h2>
 
           <div className="formElement">
-            <label htmlFor="from_name">Name</label>
+            <label htmlFor="user_name">Name</label>
             <input
               type="text"
-              id="from_name"
-              name="from_name"
+              id="user_name"
+              name="user_name"
               placeholder="Your name.."
+              value={formData.user_name}
+              onChange={handleChange}
               required
             />
+            {errors.user_name && (
+              <span className="error">Name is required</span>
+            )}
           </div>
 
           <div className="formElement">
-            <label htmlFor="from_email">E-mail</label>
+            <label htmlFor="user_email">E-mail</label>
             <input
               type="email"
-              id="from_email"
-              name="from_email"
+              id="user_email"
+              name="user_email"
               placeholder="Your email.."
+              value={formData.user_email}
+              onChange={handleChange}
               required
             />
+            {errors.user_email && (
+              <span className="error">Email is required</span>
+            )}
           </div>
 
           <div className="formElement">
@@ -60,13 +107,20 @@ const Contact: React.FC = () => {
               rows={8}
               cols={30}
               placeholder="Your message.."
+              value={formData.message}
+              onChange={handleChange}
               required
             />
+            {errors.message && (
+              <span className="error">Message is required</span>
+            )}
           </div>
 
           <button type="submit" className="formButton">
             Submit
           </button>
+
+          {successMessage && <p className="successMessage">{successMessage}</p>}
         </form>
       </div>
     </div>
